@@ -12,3 +12,5 @@ if prompt := st.chat_input("Say something"):
     for i in range(len(user_msgs)):
         messages.chat_message("user").write(user_msgs[i])
         messages.chat_message("assistant").write(bot_msgs[i])
+
+

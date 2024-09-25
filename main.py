@@ -2,27 +2,30 @@
 
 
 def get_commands():
-    return ["/add","/delete", "/clear", "/list"]
+    return ["/add","/delete","/clear","/list"]
 
-def add(command, playlist):
-    action = command.split(" ")[0]
-    song = command.split(" ")[1:]
+def add(song_name, playlist):
+    """Add a song to the playlist"""
+    playlist.append(f"{song_name}")
 
-    if action == "/add":
-    print(action)
-    print(song)
+    return playlist, f"Added a {song_name} to the playlist"
 
+def clear(playlist):
+    """Clear the playlist"""
+    playlist.clear()
 
-    playlist.append(song)
-    return playlist
+    return playlist, f"Playlist cleared"
+
+def remove(song_name, playlist):
+    """Remove a song from the playlist"""
+    playlist.remove(f"{song_name}")
+
+    return playlist, f"removed {song_name} from the playlist"
+
 
 
 if __name__ == "__main__":
-    list = add("/add shine bright", [])
+    playlist = []
+
+    add_song = add("Shine Bright", playlist)
     print(list)
-
-
-
-
-
-
