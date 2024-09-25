@@ -1,5 +1,6 @@
 import streamlit as st
 from main import *
+import pandas as pd
 
 # Initialize session state variables if they don't exist
 if 'playlist' not in st.session_state:
@@ -9,7 +10,6 @@ if 'user_msgs' not in st.session_state:
 if 'bot_msgs' not in st.session_state:
     st.session_state.bot_msgs = []
 
-messages = st.container()
 
 if prompt := st.chat_input("Say something"):
     # Processing prompt
@@ -38,7 +38,16 @@ if prompt := st.chat_input("Say something"):
     # Saving user prompt
     st.session_state.user_msgs.append(prompt)
 
+with st.sidebar:
+    table = st.table(pd.DataFrame(st.session_state.playlist, columns=["Songs"]))
+messages = st.container(height=400)
+
 # Shows all messages in message list
 for i in range(len(st.session_state.user_msgs)):
     messages.chat_message("user").write(st.session_state.user_msgs[i])
     messages.chat_message("assistant").write(st.session_state.bot_msgs[i])
+
+
+
+
+
