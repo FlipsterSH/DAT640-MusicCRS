@@ -8,7 +8,7 @@ def add(song_name, playlist):
     """Add a song to the playlist"""
     playlist.append(f"{song_name}")
 
-    return playlist, f"Added a {song_name} to the playlist"
+    return playlist, f"Added a {song_name} to the playlist here is playlist {playlist}"
 
 def clear(playlist):
     """Clear the playlist"""
@@ -28,4 +28,11 @@ if __name__ == "__main__":
     playlist = []
 
     add_song = add("Shine Bright", playlist)
-    print(list)
+    add_song2 = add("Diamonds in the Sky", playlist)
+    add_song3 = add("Exotic Tiger", playlist)
+    print(playlist)
+    remove_song = remove("Shine Bright", playlist)
+    print(remove_song)
+    print(playlist)
+    clear_playlist = clear(playlist)
+    print(playlist)

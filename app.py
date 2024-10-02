@@ -17,6 +17,7 @@ if prompt := st.chat_input("Say something"):
         plist, reply = add(song, playlist)
         playlist = plist
         bot_msgs.append(reply)
+        bot_msgs.append(f"Here is the playlist:\n{playlist}")
     elif command == "/remove":
         playlist, reply = remove(song, playlist)
         bot_msgs.append(reply)
