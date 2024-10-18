@@ -39,6 +39,7 @@ if prompt := st.chat_input("Say something"):
 with st.sidebar:
     header = st.header("Playlist:", divider="gray")
     table = st.table(pd.DataFrame(playlist, columns=["Songs"]))
+    st.button(label="Clear 🚮", on_click=clear)
 messages = st.container(height=500)
 
 messages.chat_message("assistant").write(st.session_state.bot_msgs[0])
