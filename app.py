@@ -1,10 +1,10 @@
 import streamlit as st
 from main import *
 import pandas as pd
+from databases.database import *
 
 # Initialize session state variables if they don't exist
-if 'playlist' not in st.session_state:
-    st.session_state.playlist = ["You rock my world", "Rock with you", "Rock and roll", "Rolling in the deep", "Real love"]
+playlist = get_playlist_song_titles()
 if 'user_msgs' not in st.session_state:
     st.session_state.user_msgs = []
 if 'bot_msgs' not in st.session_state:
@@ -19,28 +19,26 @@ if prompt := st.chat_input("Say something"):
 
     # Executing command
     if command == "/add":
-        plist, reply = add(song, st.session_state.playlist)
-        st.session_state.playlist = plist
+        reply = add(song)
         st.session_state.bot_msgs.append(reply)
     elif command == "/remove":
-        playlist, reply = remove(song, st.session_state.playlist)
-        st.session_state.playlist = playlist
+        reply = remove(song)
         st.session_state.bot_msgs.append(reply)
     elif command == "/clear":
-        playlist, reply = clear(st.session_state.playlist)
-        st.session_state.playlist = playlist
+        reply = clear()
         st.session_state.bot_msgs.append(reply)
     elif command == "/list":
-        st.session_state.bot_msgs.append(f"Here is the playlist:\n{st.session_state.playlist}")
+        st.session_state.bot_msgs.append(f"Here is the playlist:\n{playlist}")
     else:
         st.session_state.bot_msgs.append("Command not found.")
 
     # Saving user prompt
     st.session_state.user_msgs.append(prompt)
+    st.rerun()
 
 with st.sidebar:
     header = st.header("Playlist:", divider="gray")
-    table = st.table(pd.DataFrame(st.session_state.playlist, columns=["Songs"]))
+    table = st.table(pd.DataFrame(playlist, columns=["Songs"]))
 messages = st.container(height=500)
 
 messages.chat_message("assistant").write(st.session_state.bot_msgs[0])
