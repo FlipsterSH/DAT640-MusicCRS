@@ -14,8 +14,7 @@ def setup_song_database():
             song_title TEXT,
             album_title TEXT,
             artist TEXT,
-            release_date TEXT,
-            genre TEXT
+            release_date TEXT
         )
     ''')
     
@@ -46,7 +45,7 @@ def setup_playlist_database():
 
 ################################# INSERT INTO DATABASE FUNCTIONS #########################################################
 
-def insert_song(song_title, album_title, artist, release_date, genre):
+def insert_song(song_title, album_title, artist, release_date):
     """
     Inserts a song into the songs database.
 
@@ -67,9 +66,9 @@ def insert_song(song_title, album_title, artist, release_date, genre):
     # Insert the song into the songs table
     try:
         cursor.execute('''
-            INSERT INTO songs (song_title, album_title, artist, release_date, genre)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (song_title, album_title, artist, release_date, genre))
+            INSERT INTO songs (song_title, album_title, artist, release_date)
+            VALUES (?, ?, ?, ?)
+        ''', (song_title, album_title, artist, release_date))
         conn.commit()
         song_id = cursor.lastrowid  # Get the auto-generated song_id
     except sqlite3.IntegrityError as e:
@@ -369,20 +368,20 @@ def clear_playlist():
 
 if __name__ == "__main__":
     # # # ################# SETTING UP THE DATABASES
-    # setup_song_database()
-    # setup_playlist_database()
+    setup_song_database()
+    # # setup_playlist_database()
 
-    ################ INSERT SONGS INTO SONG DATABASE
-    #song_id1 = insert_song("Hey Jude", "Hey Jude", "The Beatles", "1968-08-26", "Rock")
-    #song_id2 = insert_song("Bohemian Rhapsody", "A Night at the Opera", "Queen", "1975-10-31", "Rock")
-    song3 = insert_song("Beat it", "Beat", "Michael Jackson", "2003", "Pop/Rock")
+    # ################ INSERT SONGS INTO SONG DATABASE
+    # #song_id1 = insert_song("Hey Jude", "Hey Jude", "The Beatles", "1968-08-26", "Rock")
+    # #song_id2 = insert_song("Bohemian Rhapsody", "A Night at the Opera", "Queen", "1975-10-31", "Rock")
+    # song3 = insert_song("Beat it", "Beat", "Michael Jackson", "2003", "Pop/Rock")
 
-    # ############## INSERT SONGS INTO PLAYLIST DATABASE
-    # add_song_to_playlist(1)
-    # add_song_to_playlist(2)
+    # # ############## INSERT SONGS INTO PLAYLIST DATABASE
+    # # add_song_to_playlist(1)
+    # # add_song_to_playlist(2)
 
-    # ############## GET PLAYLIST SONG TITLES
-    # playlist_titles = get_playlist_song_titles()
-    # print("Playlist Songs:")
-    # for title in playlist_titles:
-    #     print(title)
+    # # ############## GET PLAYLIST SONG TITLES
+    # # playlist_titles = get_playlist_song_titles()
+    # # print("Playlist Songs:")
+    # # for title in playlist_titles:
+    # #     print(title)
