@@ -1,4 +1,5 @@
 import sqlite3
+from supporting_functions import *
 
 ######################### SETUP FUNCTIONS ############################################################
 
@@ -117,28 +118,65 @@ def add_song_to_playlist_by_title(song_title):
 
     if not results:
         print(f"No song found with title '{song_title}'.")
-        return
+        return False
 
     elif len(results) == 1:
         # Only one song matches the title
         song_id = results[0][0]
         add_song_to_playlist(song_id)
         print(f"Added '{song_title}' to the playlist.")
+        return True
     else:
         # Multiple songs match the title
         print(f"Multiple songs found with title '{song_title}':")
+        songs = []
         for idx, (song_id, artist, album_title) in enumerate(results, start=1):
+            songs.append(f"{idx}. Artist: {artist}, Album: {album_title}")
             print(f"{idx}. Artist: {artist}, Album: {album_title}")
-        try:
-            choice = int(input("Enter the number of the song you want to add: "))
-            if 1 <= choice <= len(results):
-                song_id = results[choice - 1][0]
-                add_song_to_playlist(song_id)
-                print(f"Added '{song_title}' to the playlist.")
-            else:
-                print("Invalid choice. No song added to the playlist.")
-        except ValueError:
-            print("Invalid input. No song added to the playlist.")
+        return songs
+    
+
+
+def add_specific_song_to_playlist(song_title, artist, album_title):
+    """
+    Adds a specific song to the playlist by matching song_title, artist, and album_title.
+
+    Parameters:
+        song_title (str): The title of the song.
+        artist (str): The artist of the song.
+        album_title (str): The title of the album.
+
+    Returns:
+        bool: True if the song is successfully added, False otherwise.
+    """
+    # Connect to the songs database
+    conn = sqlite3.connect('databases/songs.db')
+    cursor = conn.cursor()
+
+    # Query for the song
+    cursor.execute('''
+        SELECT song_id FROM songs WHERE song_title = ? AND artist = ? AND album_title = ?
+    ''', (song_title, artist, album_title))
+    results = cursor.fetchall()
+    conn.close()
+
+    if not results:
+        print(f"No song found with title '{song_title}', artist '{artist}', and album '{album_title}'.")
+        return False
+    elif len(results) == 1:
+        song_id = results[0][0]
+        # Add to playlist
+        add_song_to_playlist(song_id)
+        print(f"Added '{song_title}' by '{artist}' from album '{album_title}' to the playlist.")
+        return True
+    else:
+        # Multiple matches found
+        print("Multiple songs found with the given details:")
+        for idx, (song_id,) in enumerate(results, start=1):
+            print(f"{idx}. song_id: {song_id}")
+        print("Cannot add song to playlist due to ambiguity.")
+        return False
+
 
 
 ################################### GET RECORDS FROM DATABASES FUNCTIONS ####################################################
@@ -206,27 +244,6 @@ def get_songs_by_artist(artist):
     conn.close()
     return results
 
-def get_songs_by_genre(genre):
-    """
-    Retrieves songs from the database that match the given genre.
-
-    Parameters:
-        genre (str): The genre to search for.
-
-    Returns:
-        list of tuples: A list of records matching the genre.
-    """
-    conn = sqlite3.connect('databases/songs.db')
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        SELECT * FROM songs WHERE genre = ?
-    ''', (genre,))
-    results = cursor.fetchall()
-
-    conn.close()
-    return results
-
 def get_playlist_songs():
     """
     Retrieves all songs from the playlist.
@@ -281,6 +298,110 @@ def get_playlist_song_titles():
     return song_titles
 
 
+def get_album_release_year(album_title):
+    """
+    Retrieves the release year of the first album found in the database matching the given album title.
+
+    Parameters:
+        album_title (str): The title of the album.
+
+    Returns:
+        str: The release year of the album, or None if not found.
+    """
+    # Connect to the songs database
+    conn = sqlite3.connect('databases/songs.db')
+    cursor = conn.cursor()
+
+    # Query for the release date of the album
+    cursor.execute('''
+        SELECT release_date FROM songs WHERE album_title = ? LIMIT 1
+    ''', (album_title,))
+    result = cursor.fetchone()
+    conn.close()
+
+    print(result)
+
+    if result:
+        release_date = convert_bytes_to_datetime(result)
+        return release_date
+
+    else:
+        print(f"No album found with title '{album_title}'.")
+        return None
+
+
+
+def get_unique_album_count_by_artist(artist_name):
+    """
+    Returns the number of unique album titles by the given artist.
+
+    Parameters:
+    - artist_name (str): The name of the artist.
+
+    Returns:
+    - int: Number of unique albums by the artist.
+    """
+    db_path = 'databases/songs.db'  # Corrected the database path
+
+    # Establish a connection to the database
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # SQL query to count unique album titles by the artist
+    query = '''
+    SELECT COUNT(DISTINCT album_title)
+    FROM songs
+    WHERE artist = ?
+    '''
+
+    try:
+        # Execute the query with the artist's name as a parameter to prevent SQL injection
+        cursor.execute(query, (artist_name,))
+        result = cursor.fetchone()
+
+        # If the artist is found, return the count; otherwise, return 0
+        album_count = result[0] if result[0] is not None else 0
+        return album_count
+
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+        return 0  # Return 0 in case of error for simplicity
+
+    finally:
+        # Close the database connection
+        conn.close()
+
+
+
+def get_albums_by_song_title(song_title):
+    """
+    Retrieves a list of all albums that the given song is featured in.
+
+    Parameters:
+        song_title (str): The title of the song.
+
+    Returns:
+        list: A list of album titles that the song is featured in.
+    """
+
+    # Connect to the songs database
+    conn = sqlite3.connect('databases/songs.db')
+    cursor = conn.cursor()
+
+    # Query to find all unique albums that contain the song
+    cursor.execute('''
+        SELECT DISTINCT album_title FROM songs WHERE song_title = ?
+    ''', (song_title,))
+    results = cursor.fetchall()
+
+    # Close the database connection
+    conn.close()
+
+    # Extract album titles from the query results
+    albums = [row[0] for row in results]
+
+    return albums
+
 
 
 
@@ -321,30 +442,13 @@ def remove_song_from_playlist_by_title(song_title):
         conn_playlist.close()
         return
 
-    elif len(playlist_song_ids) == 1:
-        # Only one song matches and is in the playlist
-        song_id = playlist_song_ids[0][0]
+    for song in playlist_song_ids:
+        song_id = song[0]
         cursor_playlist.execute('DELETE FROM playlist WHERE song_id = ?', (song_id,))
         conn_playlist.commit()
-        print(f"Removed '{song_title}' from the playlist.")
-    else:
-        # Multiple songs match and are in the playlist
-        print(f"Multiple songs with title '{song_title}' are in the playlist:")
-        for idx, (song_id, artist, album_title) in enumerate(playlist_song_ids, start=1):
-            print(f"{idx}. Artist: {artist}, Album: {album_title}")
-        try:
-            choice = int(input("Enter the number of the song you want to remove: "))
-            if 1 <= choice <= len(playlist_song_ids):
-                song_id = playlist_song_ids[choice - 1][0]
-                cursor_playlist.execute('DELETE FROM playlist WHERE song_id = ?', (song_id,))
-                conn_playlist.commit()
-                print(f"Removed '{song_title}' from the playlist.")
-            else:
-                print("Invalid choice. No song removed from the playlist.")
-        except ValueError:
-            print("Invalid input. No song removed from the playlist.")
 
     conn_playlist.close()
+    return
 
 
 
