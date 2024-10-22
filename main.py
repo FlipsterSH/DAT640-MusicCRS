@@ -40,12 +40,13 @@ def get_album_date(album):
 
 def how_many_albums(artist):
     count = get_unique_album_count_by_artist(artist)
-    return f"{artist} has released {count} albums"
+    albums = get_albums_by_artist(artist)
+    return f"{artist} has released {count} albums named {albums}"
 
 
 def song_album_features(song):
     albums = get_albums_by_song_title(song)
-    response = (f"The song {song}, is featured in these albums: {albums[0]}")
+    response = (f"The song {song}, is featured in these albums: {albums}")
 
     return response
 

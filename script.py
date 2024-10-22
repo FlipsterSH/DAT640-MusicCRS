@@ -1,1 +1,1 @@
-ALTER TABLE songs DE
+# File for running minor scripts

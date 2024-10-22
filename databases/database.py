@@ -287,15 +287,17 @@ def get_playlist_song_titles():
 
     conn_songs = sqlite3.connect('databases/songs.db')
     cursor_songs = conn_songs.cursor()
-    song_titles = []
+    song_info = []
     for song_id in song_ids:
-        cursor_songs.execute('SELECT song_title FROM songs WHERE song_id = ?', (song_id,))
+        cursor_songs.execute('SELECT song_title, artist, album_title, release_date FROM songs WHERE song_id = ?', (song_id,))
         result = cursor_songs.fetchone()
         if result:
-            song_titles.append(result[0])
+            song_title, artist, album_title, release_date = result
+            release_year = convert_bytes_to_year(release_date)
+            song_info.append((song_title, artist, album_title, release_year))    
     conn_songs.close()
 
-    return song_titles
+    return song_info
 
 
 def get_album_release_year(album_title):
@@ -401,6 +403,37 @@ def get_albums_by_song_title(song_title):
     albums = [row[0] for row in results]
 
     return albums
+
+def get_albums_by_artist(artist):
+    """
+    Retrieves a list of all albums that the given song is featured in.
+
+    Parameters:
+        song_title (str): The title of the song.
+
+    Returns:
+        list: A list of album titles that the song is featured in.
+    """
+
+    # Connect to the songs database
+    conn = sqlite3.connect('databases/songs.db')
+    cursor = conn.cursor()
+
+    # Query to find all unique albums that contain the song
+    cursor.execute('''
+        SELECT DISTINCT album_title FROM songs WHERE artist = ?
+    ''', (artist,))
+    results = cursor.fetchall()
+
+    # Close the database connection
+    conn.close()
+
+    # Extract album titles from the query results
+    albums = [row[0] for row in results]
+
+    return albums
+
+
 
 
 
