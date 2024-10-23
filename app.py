@@ -80,7 +80,8 @@ if prompt := st.chat_input("Say something"):
     if command == "/add":
         reply = add(song)
         if type(reply) == list:
-            msg = ("Found multiple songs with the same title, try using /add-specific song_title;artist;album_title to specify the version")
+            msg = ("""Found multiple songs with the same title.\n 
+                   Try using /add-specific song_title;artist;album_title""")
             for song in reply:
                 msg += f"\n{song}" 
 
@@ -106,7 +107,7 @@ if prompt := st.chat_input("Say something"):
             album = album.strip()
             response = get_album_date(album)
             st.session_state.bot_msgs.append(response)
-        if "how many albums" in prompt or "how many albums" in prompt:
+        if "How many albums" in prompt or "how many albums" in prompt:
             split = prompt.strip().split("has")
             artist_comps = split[1].split(" ")    
             artist = " ".join(artist_comps[:-1])
