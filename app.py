@@ -10,6 +10,10 @@ if 'user_msgs' not in st.session_state:
     st.session_state.user_msgs = []
 if 'bot_msgs' not in st.session_state:
     st.session_state.bot_msgs = [f"Welcome to MusicCRS. These are the available commands for building the playlist: /add, /remove, /clear, /list"]
+if 'show_song_selection' not in st.session_state:
+    st.session_state.show_song_selection = False
+if 'song_options' not in st.session_state:
+    st.session_state.song_options = []
 
 def count_playlist_songs():
     songs = get_playlist_song_titles()
@@ -79,13 +83,10 @@ if prompt := st.chat_input("Say something"):
     # Executing command
     if command == "/add":
         reply = add(song)
-        if type(reply) == list:
-            msg = ("""Found multiple songs with the same title.\n 
-                   Try using /add-specific song_title;artist;album_title""")
-            for song in reply:
-                msg += f"\n{song}" 
-
-            st.session_state.bot_msgs.append(msg)
+        if isinstance(reply, list):
+            st.session_state.show_song_selection = True
+            st.session_state.song_options = reply
+            st.session_state.bot_msgs.append("Multiple songs found. Please select one from the popup.")
         else:
             st.session_state.bot_msgs.append(reply)
     elif command == "/add-specific":
@@ -130,11 +131,11 @@ if prompt := st.chat_input("Say something"):
 messages = st.container(height=500)
 messages.chat_message("assistant").write(st.session_state.bot_msgs[0])
 
-# Shows all messages in message list
-for i in range(len(st.session_state.user_msgs)):
-    messages.chat_message("user").write(st.session_state.user_msgs[i])
-    messages.chat_message("assistant").write(st.session_state.bot_msgs[i+1])
-
+# Only show user-bot message pairs if there are any
+if st.session_state.user_msgs:
+    for i, (user_msg, bot_msg) in enumerate(zip(st.session_state.user_msgs, st.session_state.bot_msgs[1:])):
+        messages.chat_message("user").write(user_msg)
+        messages.chat_message("assistant").write(bot_msg)
 
 # Button container below chat
 st.write("---")  # Divider between chat and buttons
@@ -191,6 +192,23 @@ with button_container:
                     st.session_state.user_msgs.append(f"Which album features song {song_name}?")
                     st.rerun()
 
+if st.session_state.show_song_selection:
+    with st.sidebar:
+        st.header("Select a Song")
+        for i, song_info in enumerate(st.session_state.song_options):
+            title, artist, album = song_info
+            st.write(f"🎵 **{title}** by {artist} from _{album}_")
+            if st.button("Add", key=f"add_song_{i}"):
+                add_result = add_specific(f"{title};{artist};{album}")
+                st.session_state.bot_msgs.append(add_result)
+                st.session_state.show_song_selection = False
+                st.session_state.song_options = []
+                st.rerun()
+        
+        if st.button("Cancel"):
+            st.session_state.show_song_selection = False
+            st.session_state.song_options = []
+            st.rerun()
 
 with st.sidebar:
     

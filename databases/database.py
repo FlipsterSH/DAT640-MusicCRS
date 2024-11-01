@@ -5,7 +5,7 @@ from supporting_functions import *
 
 def setup_song_database():
     # Connect to the SQLite database (or create it if it doesn't exist)
-    conn = sqlite3.connect('databases/songs.db')
+    conn = sqlite3.connect('databases/songs1.db')
     cursor = conn.cursor()
     
     # Create the table with the specified schema
@@ -109,10 +109,9 @@ def add_song_to_playlist_by_title(song_title):
     Parameters:
         song_title (str): The title of the song to add to the playlist.
     """
-    # Connect to the songs database to find the song_id(s)
     conn = sqlite3.connect('databases/songs.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT song_id, artist, album_title FROM songs WHERE song_title = ?', (song_title,))
+    cursor.execute('SELECT song_id, song_title, artist, album_title FROM songs WHERE song_title = ?', (song_title,))
     results = cursor.fetchall()
     conn.close()
 
@@ -128,12 +127,7 @@ def add_song_to_playlist_by_title(song_title):
         return True
     else:
         # Multiple songs match the title
-        print(f"Multiple songs found with title '{song_title}':")
-        songs = []
-        for idx, (song_id, artist, album_title) in enumerate(results, start=1):
-            songs.append(f"{idx}. Artist: {artist}, Album: {album_title}")
-            print(f"{idx}. Artist: {artist}, Album: {album_title}")
-        return songs
+        return [(result[1], result[2], result[3]) for result in results]
     
 
 

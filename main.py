@@ -7,11 +7,11 @@ def get_commands():
 def add(song_name):
     status = add_song_to_playlist_by_title(song_name)
     if status == True:
-        return f"""Added {song_name} to the playlist \n
-                Try out our buttons below to find more about the song! :P"""
+        return f"Added {song_name} to the playlist \nTry out our buttons below to find more about the song! :P"
     if status == False:
         return f"I was not able to add that song, could you ask for another one?"
     else:
+        # status is already a list of tuples containing (song_title, artist, album)
         return status
 
 def add_specific(song):
