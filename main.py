@@ -5,7 +5,8 @@ def get_commands():
     return ["/add","/remove","/clear","/list"]
 
 def add(song_name):
-    status = add_song_to_playlist_by_title(song_name)
+    similar_song_name = get_song_title_by_similar_name(song_name)
+    status = add_song_to_playlist_by_title(similar_song_name)
     if status == True:
         return f"""Added {song_name} to the playlist \n
                 Try out our buttons below to find more about the song! :P"""

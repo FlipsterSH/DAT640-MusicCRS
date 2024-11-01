@@ -1,7 +1,8 @@
 import struct
 from datetime import datetime
-from difflib import get_close_matches
 import sqlite3
+from rapidfuzz import process, fuzz
+
 
 def convert_bytes_to_datetime(byte_tuple):
     # Unpack the bytes as a little-endian unsigned 64-bit integer
@@ -15,6 +16,45 @@ def convert_bytes_to_year(byte_data):
     # Unpack the first two bytes as a little-endian unsigned short (year)
     year = struct.unpack('<H', byte_data[:2])[0]
     return year
+
+
+
+def get_close_matches111(word, possibilities, n=3, cutoff=0.6):
+    """
+    Use RapidFuzz's process.extract function to return a list of the best "good enough" matches.
+
+    word is a sequence for which close matches are desired (typically a string).
+
+    possibilities is a list of sequences against which to match word (typically a list of strings).
+
+    Optional arg n (default 3) is the maximum number of close matches to return. n must be > 0.
+
+    Optional arg cutoff (default 0.6) is a float in [0, 1]. Possibilities that don't score at least that similar to word are ignored.
+
+    The best (no more than n) matches among the possibilities are returned in a list, sorted by similarity score, most similar first.
+
+    >>> get_close_matches("appel", ["ape", "apple", "peach", "puppy"])
+    ['apple', 'ape']
+    >>> import keyword as _keyword
+    >>> get_close_matches("wheel", _keyword.kwlist)
+    ['while']
+    >>> get_close_matches("Apple", _keyword.kwlist)
+    []
+    >>> get_close_matches("accept", _keyword.kwlist)
+    ['except']
+    """
+    if not n > 0:
+        raise ValueError(f"n must be > 0: {n}")
+    if not 0.0 <= cutoff <= 1.0:
+        raise ValueError(f"cutoff must be in [0.0, 1.0]: {cutoff}")
+
+    # Adjust cutoff since RapidFuzz scores are between 0 and 100
+    adjusted_cutoff = cutoff * 100
+    results = process.extract(
+        word, possibilities, scorer=fuzz.ratio, limit=n, score_cutoff=adjusted_cutoff
+    )
+
+    return [match for match, score, _ in results]
 
 
 
@@ -43,7 +83,7 @@ def get_song_title_by_similar_name(songname):
             return songname
         else:
             # Find the most similar song name
-            similar_names = get_close_matches(songname, song_names, n=1, cutoff=0.50)
+            similar_names = get_close_matches111(songname, song_names, n=1, cutoff=0.70)
             if similar_names:
                 return similar_names[0]  # Return the first (most similar) name from the list
             else:
@@ -57,8 +97,11 @@ def get_song_title_by_similar_name(songname):
         if conn:
             conn.close()
 
+
+
+
 if __name__ == "__main__":
-    name = get_song_title_by_similar_name("You Find It Everywhere")
+    name = get_song_title_by_similar_name("Tansssi vaan")
     print(name)
 
 
