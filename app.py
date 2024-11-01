@@ -3,6 +3,7 @@ from main import *
 import pandas as pd
 from databases.database import *
 from supporting_functions import *
+from prompt import get_chat_completion1
 
 # Initialize session state variables if they don't exist
 playlist = get_playlist_song_titles()
@@ -76,6 +77,8 @@ def normalize_text(text):
 
 if prompt := st.chat_input("Say something"):
     # Processing prompt
+    st.session_state.user_msgs.append(prompt)
+    prompt = prompt + "This is the playlist:" + playlist
     prompt_components = prompt.split(" ")
     command = prompt_components[0]
     song = " ".join(prompt_components[1:])
@@ -125,7 +128,6 @@ if prompt := st.chat_input("Say something"):
             st.session_state.bot_msgs.append("Command not found.")
 
     # Saving user prompt
-    st.session_state.user_msgs.append(prompt)
     st.rerun()
 
 messages = st.container(height=500)
