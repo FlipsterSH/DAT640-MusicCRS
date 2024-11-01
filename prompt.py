@@ -34,6 +34,11 @@ if __name__ == "__main__":
     /remove songname
     /list
     /clear
+    /add-specific song_title;artist;album_title
+    When was album X released?
+    How many Albums has X released?
+    Which album features song X
+    Command not found
 
     These are examples:
     This is the user input: Hello i want to add Tanssi vaan to the playlist
@@ -47,10 +52,25 @@ if __name__ == "__main__":
 
     This is the user input: Hello i want to clear the playlist
     This is what you should reply: /clear
+
+    This is the user input: Hi i want to add Love Story by Taylor Swift from the album Love Story
+    This is what you should reply: /add-specific Love Story;Taylor Swift;Love Story
+
+    This is the user input: Could you please tell me when the album Love Story was released?
+    This is what you shold reply: When was album Love Story released?
+
+    This is the user input: Hi, i want to know how many albums Taylor Swift has released
+    This is what you should reply: How many albums has Taylor Swift released?
+
+    This is the user input: In what album is the song Love Story featured?
+    This is what you should reply: Which album features song Love Story?
+
+    If the userinput does not match any of the intended functions or questions, you should respond with command not found.
     """
 
-    specifications = """
-    This is the user input: Heyy, can you add Love Story to the playlist?
+    specifications = f"""
+    This is the user input: In which album is Shine Bright featured?
+    This is the playlist:
     """
 
     completion = get_chat_completion(instructions, specifications)
