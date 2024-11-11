@@ -497,6 +497,83 @@ def clear_playlist():
 
 
 
+def get_song_recommendations(playlist_songs, limit=5):
+    """
+    Get song recommendations based on the current playlist.
+    
+    Args:
+        playlist_songs: List of songs currently in the playlist (title, artist, album, year)
+        limit: Number of recommendations to return
+    
+    Returns:
+        List of recommended songs as tuples (title, artist, album, year)
+    """
+    if not playlist_songs:
+        return []
+        
+    conn = sqlite3.connect('databases/songs.db')
+    cursor = conn.cursor()
+    
+    # Get current playlist song titles for exclusion
+    playlist_titles = [song[0] for song in playlist_songs]
+    playlist_titles_str = ','.join('?' * len(playlist_titles))
+    
+    recommendations = set()
+    
+    for song in playlist_songs:
+        title, artist, album, year = song
+        
+        # Find songs by the same artist
+        cursor.execute(f'''
+            SELECT DISTINCT song_title, artist, album_title, release_date 
+            FROM songs 
+            WHERE artist = ? 
+            AND song_title NOT IN ({playlist_titles_str})
+            LIMIT 5
+        ''', (artist, *playlist_titles))
+        recommendations.update(cursor.fetchall())
+        
+        # Find songs from the same year (±2 years)
+        if year:
+            try:
+                year = int(year)
+                cursor.execute(f'''
+                    SELECT DISTINCT song_title, artist, album_title, release_date 
+                    FROM songs 
+                    WHERE CAST(release_date AS INTEGER) BETWEEN ? AND ?
+                    AND song_title NOT IN ({playlist_titles_str})
+                    AND artist != ?
+                    LIMIT 5
+                ''', (year - 2, year + 2, *playlist_titles, artist))
+                recommendations.update(cursor.fetchall())
+            except (ValueError, TypeError):
+                continue
+        
+        # Find songs from the same album
+        cursor.execute(f'''
+            SELECT DISTINCT song_title, artist, album_title, release_date 
+            FROM songs 
+            WHERE album_title = ? 
+            AND song_title NOT IN ({playlist_titles_str})
+            LIMIT 3
+        ''', (album, *playlist_titles))
+        recommendations.update(cursor.fetchall())
+    
+    conn.close()
+    
+    # Convert recommendations to list, process release dates, and limit results
+    processed_recommendations = []
+    for rec in recommendations:
+        title, artist, album, release_date = rec
+        year = convert_bytes_to_year(release_date)
+        processed_recommendations.append((title, artist, album, year))
+    
+    # Sort by release year (most recent first) and limit results
+    processed_recommendations.sort(key=lambda x: x[3] if x[3] is not None else 0, reverse=True)
+    return processed_recommendations[:limit]
+
+
+
 if __name__ == "__main__":
     # # # ################# SETTING UP THE DATABASES
     setup_song_database()
