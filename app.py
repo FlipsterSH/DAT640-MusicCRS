@@ -226,3 +226,28 @@ with tab1:
         header = st.header("Playlist:", divider="gray")
         table = st.table(pd.DataFrame(playlist, columns=["Song Title", "Artist", "Album Title", "Release Year"]))
         st.button(label="Clear 🚮", on_click=clear)
+
+with tab2:
+    st.header("Song Recommendations")
+    
+    # Get current playlist
+    current_playlist = get_playlist_song_titles()
+    
+    if not current_playlist:
+        st.warning("Add some songs to your playlist to get recommendations!")
+    else:
+        # Get recommendations
+        recommendations = get_song_recommendations(current_playlist)
+        
+        if recommendations:
+            # Create DataFrame for recommendations
+            rec_df = pd.DataFrame(
+                recommendations,
+                columns=["Song Title", "Artist", "Album Title", "Release Year"]
+            )
+            
+            # Display recommendations table
+            st.write("Based on your playlist, you might like these songs:")
+            st.table(rec_df)
+        else:
+            st.info("No recommendations found. Try adding more songs to your playlist!")
