@@ -20,6 +20,18 @@ def add_specific(song):
     status = add_specific_song_to_playlist(title, artist, album)
     if status:
         return f"Added Song title: {title}, Artist: {artist}, Album title: {album} to the playlist"
+    
+
+def add_multiple(request, songlist):
+    "/add-multiple 1,2,4"
+    songs = request.strip().split(" ")
+    list1 = songs.split(",")
+
+    for id in list1:
+        pass
+
+
+    
 
 
 def clear():

@@ -226,3 +226,10 @@ with tab1:
         header = st.header("Playlist:", divider="gray")
         table = st.table(pd.DataFrame(playlist, columns=["Song Title", "Artist", "Album Title", "Release Year"]))
         st.button(label="Clear 🚮", on_click=clear)
+
+
+
+with tab2:
+    print()
+
+
