@@ -497,7 +497,7 @@ def clear_playlist():
 
 
 
-def get_song_recommendations(playlist_songs, limit=10):
+def get_song_recommendations(playlist_songs, limit=5):
     """
     Get song recommendations based on the current playlist.
     

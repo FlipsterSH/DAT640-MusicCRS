@@ -20,6 +20,15 @@ def add_specific(song):
     status = add_specific_song_to_playlist(title, artist, album)
     if status:
         return f"Added Song title: {title}, Artist: {artist}, Album title: {album} to the playlist"
+    
+
+def add_multiple(songids, songlist): #request looks like this: [1,2,3,4]
+    for id in songids:
+        specific_song = songlist[int(id)]
+        specific_song_string = f"{specific_song[0]};{specific_song[1]};{specific_song[2]}"
+        add_specific(specific_song_string)
+
+    return f"Added the recommended songs to the playlist."
 
 
 def clear():
@@ -27,6 +36,7 @@ def clear():
     clear_playlist()
 
     return f"Playlist cleared"
+
 
 def remove(song_name):
     """Remove a song from the playlist"""
