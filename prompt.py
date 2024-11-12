@@ -36,6 +36,8 @@ def get_chat_completion1(userinput):
     /list
     /clear
     /add-specific song_title;artist;album_title
+    /add-many count mood
+
 
     These are the available questions you can write:
     When was album X released?
@@ -68,6 +70,15 @@ def get_chat_completion1(userinput):
     This is the user input: In what album is the song Love Story featured?
     This is what you should reply: Which album features song Love Story
 
+    This is the user input: Can you add 3 songs like Sweet Dreams?
+    This is what you should reply: /add-many 3 Sweet Dreams
+
+    This is the user input: I want 5 songs similar to Highway to Hell
+    This is what you should reply: /add-many 5 Highway to Hell
+
+    This is the user input: Add 2 songs like Taylor Swift Love Story
+    This is what you should reply: /add-many 2 Taylor Swift Love Story
+
     If the userinput does not match any of the intended functions or questions, you should respond with command not found.
     """
 
@@ -75,7 +86,6 @@ def get_chat_completion1(userinput):
     When writing a command the command should not have a space between the / and the comand word. Ie. the command should be written as /add or /list
     This is the user input that you should interpret: {userinput}
     """
-
 
     priv = get_api_keys()
     client = OpenAI(api_key=priv)
@@ -132,6 +142,49 @@ def get_chat_completion2(userinput, songlist):
     This is the songlist: {songlist}
     """
 
+    priv = get_api_keys()
+    client = OpenAI(api_key=priv)
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": instructions
+            },
+
+            {
+                "role": "user",
+                "content": specifications
+            }
+        ]
+    )
+
+    print(f"AI completion: {completion.choices[0].message.content}")
+
+    return completion.choices[0].message.content
+
+def get_chat_completion3(userinput):
+    instructions = """
+    You are an assistant trying to help a user build a playlist by interpreting the users intentions though natural language. 
+    These are the available commands for building the playlist:
+
+    /add-many count genre_or_mood
+
+    These are examples:
+    This is the user input: Can you add 3 sad songs to my playlist?
+    This is what you should reply: /add-many 3 sad
+
+    This is the user input: I want 5 rock songs in my playlist
+    This is what you should reply: /add-many 5 rock
+
+    This is the user input: Add 2 happy songs please
+    This is what you should reply: /add-many 2 happy
+    """
+
+    specifications = f"""
+    When writing a command the command should not have a space between the / and the command word.
+    This is the user input that you should interpret: {userinput}
+    """
 
     priv = get_api_keys()
     client = OpenAI(api_key=priv)

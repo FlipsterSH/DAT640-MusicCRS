@@ -1,8 +1,10 @@
 # Codespace for logic and backen functions
 from databases.database import *
+import sqlite3
+from rapidfuzz import fuzz
 
 def get_commands():
-    return ["/add","/remove","/clear","/list"]
+    return ["/add","/remove","/clear","/list","/add-many"]
 
 def add(song_name):
     similar_song_name = get_song_title_by_similar_name(song_name)
@@ -62,6 +64,39 @@ def song_album_features(song):
 
     return response
 
+def add_many(count, *search_terms):
+    """Add multiple songs that best match the search terms"""
+    conn = sqlite3.connect('databases/songs.db')
+    cursor = conn.cursor()
+    
+    # Get all songs from database
+    cursor.execute('SELECT song_title, artist, album_title FROM songs')
+    all_songs = cursor.fetchall()
+    conn.close()
+    
+    # Create search string from all terms
+    search_string = " ".join(search_terms).lower()
+    
+    # Create a list of tuples with (song_info, similarity_score)
+    scored_songs = []
+    for song in all_songs:
+        # Combine song title and artist for matching
+        song_string = f"{song[0]} {song[1]}".lower()
+        score = fuzz.ratio(search_string, song_string)
+        scored_songs.append((song, score))
+    
+    # Sort by similarity score and get the top 'count' matches
+    scored_songs.sort(key=lambda x: x[1], reverse=True)
+    best_matches = scored_songs[:int(count)]
+    
+    if not best_matches:
+        return f"No songs found matching your criteria: {search_string}"
+    
+    # Add the songs to the playlist
+    for song, score in best_matches:
+        add_specific(f"{song[0]};{song[1]};{song[2]}")
+    
+    return f"Added {len(best_matches)} songs similar to '{search_string}' to the playlist."
 
 
 if __name__ == "__main__":

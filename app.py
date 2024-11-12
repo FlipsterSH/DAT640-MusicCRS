@@ -176,6 +176,14 @@ with tab1:
             st.session_state.bot_msgs.append(reply)
         elif command == "/list":
             st.session_state.bot_msgs.append(f"Here is the playlist:\n{playlist}")
+        elif command == "/add-many":
+            try:
+                count = int(prompt_components[1])
+                genre_or_mood = " ".join(prompt_components[2:])
+                reply = add_many(count, genre_or_mood)
+                st.session_state.bot_msgs.append(reply)
+            except (ValueError, IndexError):
+                st.session_state.bot_msgs.append("Invalid format. Please specify count and genre/mood.")
         else:
             if "When was album" in prompt or "when was album" in prompt.lower():
                 split = prompt.strip().split("album")
