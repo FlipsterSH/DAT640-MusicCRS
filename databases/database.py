@@ -570,6 +570,7 @@ def get_song_recommendations(playlist_songs, limit=10):
     
     # Sort by release year (most recent first) and limit results
     processed_recommendations.sort(key=lambda x: x[3] if x[3] is not None else 0, reverse=True)
+    print("processed_recommendations:", str(processed_recommendations[:limit]))
     return processed_recommendations[:limit]
 
 
